@@ -1,50 +1,133 @@
-# Welcome to your Expo app 👋
+# SF Explorer 🗺️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A cross-platform map application showcasing San Francisco's most iconic landmarks. Built with **Expo SDK 54** and deployed on **Cloudflare Workers**.
 
-## Get started
+**Live Demo:** [sf-explorer-worker.josadegboye.workers.dev](https://sf-explorer-worker.josadegboye.workers.dev)
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+- 🗺️ **Interactive Map** — Browse SF landmarks as pins on a full-screen map
+- 📍 **Location Preview** — Tap a pin to see a slide-up card with photo, rating, and category
+- 📄 **Detail Pages** — Full detail view with hero image, hours, coordinates, and highlights
+- 🌐 **Cross-Platform** — Runs on iOS, Android, and Web from a single codebase
+- ⚡ **Edge-Deployed** — API + static hosting on Cloudflare's global network (~50ms responses)
+- 🔑 **No API Keys** — Uses OpenStreetMap tiles (web) and Apple Maps (iOS) — completely free
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Tech Stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Expo SDK 54 · React Native 0.81 · React 19.1 |
+| Routing | Expo Router v6 (file-based) |
+| Mobile Maps | react-native-maps |
+| Web Maps | Leaflet (vanilla JS) + OpenStreetMap |
+| Backend | Cloudflare Workers |
+| Styling | React Native StyleSheet + design tokens |
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## Project Structure
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+sf-explorer/
+├── app/                    # File-based routes (Expo Router)
+│   ├── +html.tsx           # Web document head (Leaflet CSS, fonts)
+│   ├── _layout.tsx         # Root Stack navigator
+│   ├── index.tsx           # Map screen
+│   └── details/[id].tsx    # Location detail screen
+├── components/
+│   ├── MapView.tsx         # Native map (iOS/Android)
+│   ├── MapView.web.tsx     # Web map (Leaflet)
+│   └── LocationCard.tsx    # Slide-up preview card
+├── services/
+│   ├── api.ts              # API client
+│   └── types.ts            # Shared types
+├── constants/
+│   └── Colors.ts           # Design system tokens
+├── worker/                 # Cloudflare Worker
+│   ├── src/index.ts        # REST API + SPA fallback
+│   ├── wrangler.toml       # Worker config
+│   └── package.json
+├── WRITEUP.md              # Technical writeup
+└── app.json                # Expo config
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Getting Started
 
-To learn more about developing your project with Expo, look at the following resources:
+### Prerequisites
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Node.js 18+
+- npm
 
-## Join the community
+### Install
 
-Join our community of developers creating universal apps.
+```bash
+# Frontend dependencies
+cd sf-explorer
+npm install
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# Worker dependencies
+cd worker
+npm install
+```
+
+### Run Locally
+
+You need **two terminals**:
+
+```bash
+# Terminal 1 — API server (port 8787)
+cd sf-explorer/worker
+npm run dev
+
+# Terminal 2 — Expo dev server
+cd sf-explorer
+npx expo start --web      # Web
+npx expo start --ios       # iOS Simulator
+npx expo start --android   # Android Emulator
+```
+
+### Deploy to Cloudflare
+
+```bash
+# Build the web bundle
+npm run build:web
+
+# Deploy worker + static assets
+cd worker
+npm run deploy
+```
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/locations` | All locations (8 SF landmarks) |
+| GET | `/api/locations/:id` | Single location by ID |
+| * | `/*` | Static assets + SPA fallback |
+
+---
+
+## Architecture
+
+The Cloudflare Worker serves dual roles:
+
+1. **REST API** — Returns location data as JSON with CORS headers
+2. **Static Host** — Serves the Expo web build from the `dist/` directory
+3. **SPA Fallback** — Routes like `/details/3` that don't match a static file get rewritten to `index.html`, so Expo Router handles client-side navigation
+
+This means a single `wrangler deploy` gives you both the API and the frontend, served from 300+ edge locations worldwide.
+
+---
+
+## License
+
+MIT
