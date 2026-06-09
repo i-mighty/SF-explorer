@@ -13,17 +13,13 @@ function getBaseUrl(): string {
     return process.env.EXPO_PUBLIC_API_URL;
   }
 
-  // On web, default to relative path (same-origin)
-  if (Platform.OS === 'web') {
-    return '';
-  }
-
-  // On native in dev, point to local wrangler dev server
+  // In dev, both web and native need to hit the local wrangler dev server
   if (__DEV__) {
     return 'http://localhost:8787';
   }
 
-  // Fallback — should be set via env var in production
+  // In production on web, the Worker serves everything from the same origin
+  // so relative paths work. For native prod, set EXPO_PUBLIC_API_URL.
   return '';
 }
 

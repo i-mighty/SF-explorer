@@ -57,9 +57,81 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Fix Leaflet map container always needing explicit height */
+/*
+ * React Native Web applies display:flex and flex-direction:column to ALL divs.
+ * This completely breaks Leaflet, which relies on standard block/absolute layout.
+ * Override everything inside .leaflet-container back to normal CSS layout.
+ */
+.leaflet-container,
+.leaflet-container * {
+  display: block !important;
+  flex-direction: unset !important;
+  flex-shrink: unset !important;
+  align-items: unset !important;
+  box-sizing: content-box !important;
+}
+
 .leaflet-container {
   width: 100% !important;
   height: 100% !important;
+  position: relative !important;
+}
+
+.leaflet-pane {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+}
+
+.leaflet-tile-pane {
+  position: absolute !important;
+}
+
+.leaflet-tile-container {
+  position: absolute !important;
+}
+
+.leaflet-tile {
+  position: absolute !important;
+}
+
+.leaflet-control-container {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  pointer-events: none;
+}
+
+.leaflet-control-container * {
+  pointer-events: auto;
+}
+
+.leaflet-top, .leaflet-bottom {
+  position: absolute !important;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.leaflet-top { top: 0 !important; }
+.leaflet-bottom { bottom: 0 !important; }
+.leaflet-left { left: 0 !important; }
+.leaflet-right { right: 0 !important; }
+
+.leaflet-control {
+  display: block !important;
+  pointer-events: auto;
+}
+
+/* Fix custom pin markers */
+.custom-pin {
+  background: none !important;
+  border: none !important;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  box-sizing: border-box !important;
 }
 `;
