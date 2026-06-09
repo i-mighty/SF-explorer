@@ -38,6 +38,9 @@ yarn-error.*
 
 app-example
 
+# Wrangler local state
+.wrangler/
+
 # generated native folders
 /ios
 /android
